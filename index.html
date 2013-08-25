@@ -29,7 +29,7 @@
       <div class="inner clearfix">
         <section id="main-content">
           <h1>
-<a name="androidprojectconverter-v100" class="anchor" href="#androidprojectconverter-v100"><span class="octicon octicon-link"></span></a>AndroidProjectConverter v1.1.0</h1>
+<a name="androidprojectconverter-v100" class="anchor" href="#androidprojectconverter-v100"><span class="octicon octicon-link"></span></a>AndroidProjectConverter v1.2.0</h1>
 
 <h2>
 <a name="overview" class="anchor" href="#overview"><span class="octicon octicon-link"></span></a>Overview</h2>
@@ -51,6 +51,16 @@ It is written in Java so it can easily be run in any environment. When executed 
 <pre lang="shell"><code>java -jar apc.jar "C:/android/MyCoolApp" "C:/android/MyCoolAppProject" MyCoolApp
 </code></pre>
 
+<p>All jars that are in the project's `libs` directory will automatically be copied and added to the module's `build.gradle` file as `compile` dependencies.</p>
+
+<h2>
+<a name="test-project-usage" class="anchor" href="#test-project-usage"><span class="octicon octicon-link"></span></a>Usage With Test Projects</h2>
+
+<p>This program can convert not only an Android project but also an Android Test Project simultaneously. A path to the test project needs to be specified as an extra argument. For example:</p>
+<pre lang="shell"><code>java -jar apc.jar "C:/android/MyCoolApp" "C:/android/MyCoolAppProject" MyCoolApp "C:/android/MyCoolAppTest"
+</code></pre>
+<p>All jars that are in the test project's `libs` directory will automatically be copied and added to the module's `build.gradle` file as `instrumentTestCompile` dependencies.</p>
+
 <h2>
 <a name="contributing" class="anchor" href="#contributing"><span class="octicon octicon-link"></span></a>Contributing</h2>
 
@@ -68,6 +78,7 @@ Once the source is downloaded, execute the following from the root directoy:</p>
 
 <h2>
 <a name="changelog" class="anchor" href="#changelog"><span class="octicon octicon-link"></span></a>Changelog</h2>
+<h3>v1.2.0</h3><p>Added the ability to copy an Android Test Project simultaneously with an Android Project.</p>
 <h3>v1.1.0</h3><p>Added support to modify Module build.gradle file with all dependencies in a lib(s) directory.</p>
 <h3>v1.0.0</h3><p>Initial Release</p>
 
@@ -76,7 +87,6 @@ Once the source is downloaded, execute the following from the root directoy:</p>
 
 <ol>
 <li>Implement a feature to check for updates to the <code>apc.jar</code> file.</li>
-<li>Provide another option to specify an Android Test Project and move the contents appropriately to the gradle project.</li>
 <li>Work with Android Library Projects.</li>
 <li>Provide an option to use dependencies from maven central instead of local libs if available.</li>
 </ol>
