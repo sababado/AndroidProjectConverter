@@ -14,6 +14,13 @@ public class Utils {
     private static final String POST_FIX_BACKUP = "_apc_backup";
 
     /**
+     * Types of dependencies.
+     */
+    public enum DependencyType {
+            compile,instrumentTestCompile
+    };
+
+    /**
      * Helper method to copy a file from resources to an external location.
      *
      * @param resourcePath Path to the resource to copy

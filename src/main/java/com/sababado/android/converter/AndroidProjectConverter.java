@@ -19,6 +19,7 @@ public final class AndroidProjectConverter {
     private static final int DEFAULT_INDEX_SOURCE = 0;
     private static final int DEFAULT_INDEX_DESTINATION = DEFAULT_INDEX_SOURCE + 1;
     private static final int DEFAULT_INDEX_NAME = DEFAULT_INDEX_DESTINATION + 1;
+    private static final int DEFAULT_INDEX_SOURCE_TEST = DEFAULT_INDEX_NAME + 1;
 
     public static void main(String[] args) {
         //Make sure there are some arguments
@@ -46,6 +47,7 @@ public final class AndroidProjectConverter {
         final String source;
         final String dest;
         final String name;
+        String sourceTest;
         try {
             source = Utils.getArgument(args, DEFAULT_INDEX_SOURCE, offset).trim();
             System.out.println("Got source: " + source);
@@ -58,8 +60,15 @@ public final class AndroidProjectConverter {
             printHelp();
             return;
         }
+        try {
+            sourceTest = Utils.getArgument(args, DEFAULT_INDEX_SOURCE_TEST, offset).trim();
+            System.out.println("Got test project source: " + sourceTest);
+        } catch (IndexOutOfBoundsException e) {
+            sourceTest = null;
+            System.out.println("No test project set");
+        }
         System.out.println("Converting project");
-        convertProject(source, dest, name);
+        convertProject(source, dest, name, sourceTest);
     }
 
     /**
@@ -99,11 +108,12 @@ public final class AndroidProjectConverter {
             sb.append("Android Project Converter");
         }
 
-        sb.append("\nUsage:\tapc [/u] <source> <destination> <name>\n\n");
-        sb.append("/u\tThe program will always check for updates before running, however use this flag to only check for updates. In this case the other values aren't necessary.\n");
-        sb.append("<source>\tThis is the path and name of the project that needs to be converted\n");
+        sb.append("\nUsage:\tapc [/u] <source_project_path> <destination_project_path> <name> [source_test_project]\n\n");
+        sb.append("[/u]\tThe program will always check for updates before running, however use this flag to only check for updates. In this case the other values aren't necessary.\n");
+        sb.append("<source>\tThis is the path of the project that needs to be converted\n");
         sb.append("<destination>\tThis is the path to the root directory of the converted project.\n\n");
         sb.append("<name>\tThis is the name of the project.\n");
+        sb.append("[source_test_project]\tPath to the Android Test Project.");
         sb.append("A backup of the source project is automatically created. It will be copied to <source>-apc_backup");
         System.out.println(sb.toString());
     }
@@ -111,11 +121,12 @@ public final class AndroidProjectConverter {
     /**
      * Convert a project with a valid source directory and destination directory
      *
-     * @param source Source directory
-     * @param dest   Destination directory
-     * @param name   Name of the project
+     * @param source     Source directory
+     * @param dest       Destination directory
+     * @param name       Name of the project
+     * @param sourceTest Directory of the Test project.
      */
-    public static void convertProject(final String source, final String dest, final String name) {
+    public static void convertProject(final String source, final String dest, final String name, final String sourceTest) {
         assert (source != null);
         assert (dest != null);
         assert (name != null);
@@ -136,6 +147,14 @@ public final class AndroidProjectConverter {
         if (destDir == null)
             return;
 
+        final File sourceTestDir;
+        if (sourceTest != null) {
+            sourceTestDir = new File(sourceTest);
+        } else {
+            sourceTestDir = null;
+        }
+
+
         System.out.println("Directories are valid");
 
         //make a backup.
@@ -144,7 +163,7 @@ public final class AndroidProjectConverter {
 
         //create android studio shell project
         try {
-            createAndroidStudioShellProject(destDir, name);
+            createAndroidStudioShellProject(destDir, name, sourceTestDir);
         } catch (IOException e) {
             System.out.println("There was an error creating the android project shell");
             e.printStackTrace();
@@ -152,7 +171,7 @@ public final class AndroidProjectConverter {
         }
 
         //copy project files
-        if (copyProjectFiles(sourceDir, new File(destDir.getPath() + "/" + name))) {
+        if (copyProjectFiles(sourceDir, new File(destDir.getPath() + "/" + name), sourceTestDir)) {
             System.out.println("\n------------------------------");
             System.out.println("Project converted Successfully!!");
             System.out.println("------------------------------");
@@ -168,14 +187,16 @@ public final class AndroidProjectConverter {
      *
      * @param sourceDir         Source project
      * @param destModuleRootDir Destination module.
+     * @param sourceTestDir Directory of the Test project.
      * @return True if all files are copied successfully, false if not.
      */
-    public static boolean copyProjectFiles(final File sourceDir, final File destModuleRootDir) {
+    public static boolean copyProjectFiles(final File sourceDir, final File destModuleRootDir, final File sourceTestDir) {
         final File destModuleMainDir = Utils.getDirectory(destModuleRootDir.getPath() + "/src/main", true);
         //Copy everything except for IDE files and Local files
 
         final File[] sourceFiles = sourceDir.listFiles(Utils.IDE_FILTER);
         System.out.println("Begin copying project files");
+        boolean hasCopiedTestProject = false;
 
         try {
             for (final File file : sourceFiles) {
@@ -188,17 +209,34 @@ public final class AndroidProjectConverter {
                 } else if (srcName.startsWith("lib")) {
                     //modify gradle file with all libs
                     destDir = new File(destModuleRootDir.getPath() + "\\libs");
-                    addDependenciesToGradleFile(file,destModuleRootDir);
-                } else {
+                    addDependenciesToGradleFile(file, destModuleRootDir, Utils.DependencyType.compile);
+                } else if(sourceTestDir != null && srcName.equals(sourceTestDir.getName())) {
+                    copyTestProjectFiles(destModuleRootDir, sourceTestDir);
+                    hasCopiedTestProject = true;
+                    destDir = null;
+                }
+                else {
                     //any other file
                     destDir = new File(destModuleMainDir.getPath() + "\\" + srcName);
                 }
-                if (file.isDirectory()) {
-                    FileUtils.copyDirectory(file, destDir, true);
-                } else {
-                    FileUtils.copyFile(file, destDir, true);
+                if(destDir != null) {
+                    if (file.isDirectory()) {
+                        FileUtils.copyDirectory(file, destDir, true);
+                    } else {
+                        FileUtils.copyFile(file, destDir, true);
+                    }
                 }
-                System.out.println(" to " + destDir.getPath());
+                if(destDir != null)
+                    System.out.println(" to " + destDir.getPath());
+                else {
+                    System.out.println();
+                }
+            }
+
+            //copy test project if it hasn't been copied.
+            if(!hasCopiedTestProject && sourceTestDir != null) {
+                copyTestProjectFiles(destModuleRootDir, sourceTestDir);
+                hasCopiedTestProject = true;
             }
         } catch (IOException e) {
             System.out.println("\nERROR!! Could not copy file/directory.");
@@ -211,24 +249,54 @@ public final class AndroidProjectConverter {
     }
 
     /**
+     * Copy the files from a test project into it's destination module
+     * @param destModuleRootDir Destination module.
+     * @param sourceTestDir Source Test directory.
+     * @return true if the operation is successful, false if not.
+     */
+    public static boolean copyTestProjectFiles(final File destModuleRootDir, final File sourceTestDir) throws IOException {
+        System.out.print(" (Copying Test Project) ");
+        //libs
+        File file = Utils.getDirectory(sourceTestDir.getPath()+"/libs", false);
+        if(file != null && file.isDirectory()) {
+            FileUtils.copyDirectory(file, new File(destModuleRootDir.getPath() + "\\libs"), true);
+            addDependenciesToGradleFile(file, destModuleRootDir, Utils.DependencyType.instrumentTestCompile);
+        }
+
+        //res
+        file = Utils.getDirectory(sourceTestDir.getPath()+"/res", false);
+        if(file != null && file.isDirectory()) {
+            FileUtils.copyDirectory(file, new File(destModuleRootDir.getPath() + "\\src\\instrumentTest\\res"), true);
+        }
+
+        //src
+        file = Utils.getDirectory(sourceTestDir.getPath()+"/src", false);
+        if(file != null && file.isDirectory()) {
+            FileUtils.copyDirectory(file, new File(destModuleRootDir.getPath() + "\\src\\instrumentTest\\java"), true);
+        }
+        return true;
+    }
+
+    /**
      * Add all libs from the directory to the module build.gradle file.
      *
-     * @param libDir        Libs directory
-     * @param moduleRootDir Root directory of the module
+     * @param libDir         Libs directory
+     * @param moduleRootDir  Root directory of the module
+     * @param dependencyType Type of dependency (compile, instrumentTestCompile)
      * @return true if the operation was successful, false if not.
      */
-    public static boolean addDependenciesToGradleFile(final File libDir, final File moduleRootDir) {
+    public static boolean addDependenciesToGradleFile(final File libDir, final File moduleRootDir, final Utils.DependencyType dependencyType) {
         assert (libDir != null && libDir.isDirectory());
         assert (moduleRootDir != null && moduleRootDir.isDirectory());
         System.out.print(" (Adding dependencies to gradle file) ");
 
-        final String prefix = "\tcompile files('" + libDir.getName() + "/";
+        final String prefix = "\t" + dependencyType + " files('" + libDir.getName() + "/";
 
         StringBuilder sb = new StringBuilder();
 
         //build string
         final File[] files = libDir.listFiles();
-        if(files == null)
+        if (files == null)
             return true;
 
         for (final File file : files) {
@@ -247,11 +315,11 @@ public final class AndroidProjectConverter {
             String line;
             br = new BufferedReader(new FileReader(buildGradle));
             bw = new BufferedWriter(new FileWriter(buildGradleWithDependencies));
-            while((line = br.readLine()) != null) {
+            while ((line = br.readLine()) != null) {
 //                System.out.println(line);
                 bw.write(line);
                 bw.newLine();
-                if(line.trim().equals(DEPENDENCY_PLACE_HOLDER)) {
+                if (line.trim().equals(DEPENDENCY_PLACE_HOLDER)) {
 //                    System.out.println(sb.toString());
                     bw.write(sb.toString());
                 }
@@ -261,12 +329,12 @@ public final class AndroidProjectConverter {
         } catch (FileNotFoundException e) {
             System.out.println("Warning!! Cannot add dependencies to module gradle file, the gradle file does not exist.");
             return false;
-        } catch(IOException e) {
+        } catch (IOException e) {
             System.out.println("Warning!! Cannot add dependencies to module gradle file, there were problems reading/writing to the file.");
             return false;
         } finally {
             try {
-                if (br != null)br.close();
+                if (br != null) br.close();
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -280,9 +348,8 @@ public final class AndroidProjectConverter {
         //move new build file to old build file.
         try {
             FileUtils.forceDelete(buildGradle);
-            FileUtils.moveFile(buildGradleWithDependencies,buildGradle);
-        }
-        catch(IOException e) {
+            FileUtils.moveFile(buildGradleWithDependencies, buildGradle);
+        } catch (IOException e) {
             System.out.println("Could not save the gradle file with dependencies.");
             return false;
         }
@@ -293,11 +360,12 @@ public final class AndroidProjectConverter {
     /**
      * Create an AndroidStudio shell project.
      *
-     * @param dest       root directory.
-     * @param moduleName Name of the project
+     * @param dest          root directory.
+     * @param moduleName    Name of the project
+     * @param sourceTestDir Directory of the Test project.
      * @throws IOException Thrown if there is an error creating files or directories.
      */
-    public static void createAndroidStudioShellProject(final File dest, final String moduleName) throws IOException {
+    public static void createAndroidStudioShellProject(final File dest, final String moduleName, final File sourceTestDir) throws IOException {
         assert (dest != null);
         assert (moduleName != null && moduleName.length() > 0);
         System.out.println("\n==============================");
@@ -330,7 +398,7 @@ public final class AndroidProjectConverter {
         bw.close();
 
         //create module
-        createAndroidStudioModule(dest, moduleName);
+        createAndroidStudioModule(dest, moduleName, sourceTestDir != null);
         System.out.println("Done Creating Project Shell");
         System.out.println("==============================");
     }
@@ -340,9 +408,10 @@ public final class AndroidProjectConverter {
      *
      * @param parentProjectDir Parent project directory.
      * @param moduleName       Module name
+     * @param createTestDir    True to create a test directory, false to not.
      * @throws IOException
      */
-    public static void createAndroidStudioModule(final File parentProjectDir, final String moduleName) throws IOException {
+    public static void createAndroidStudioModule(final File parentProjectDir, final String moduleName, final boolean createTestDir) throws IOException {
         assert (parentProjectDir != null && parentProjectDir.isDirectory());
         assert (moduleName != null);
         System.out.println("=============");
@@ -364,6 +433,9 @@ public final class AndroidProjectConverter {
         //create src/main/java
         Utils.getDirectory(moduleDir.getPath() + "/src/main/java", true);
         Utils.getDirectory(moduleDir.getPath() + "/src/main/res", true);
+        //create instrument test folder if there are tests.
+        if (createTestDir)
+            Utils.getDirectory(moduleDir.getPath() + "/src/instrumentTest/java", true);
 
         System.out.println("Done Creating Module (" + moduleName + ") Shell");
         System.out.println("=============");

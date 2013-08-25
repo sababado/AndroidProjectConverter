@@ -11,6 +11,7 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 
+import static junit.framework.Assert.assertNull;
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
 import static junit.framework.TestCase.fail;
@@ -39,8 +40,9 @@ public class TestMain {
     @Test
     public void testCreateAndroidStudioProjectShell() {
         File dir = Utils.getDirectory("C:\\test\\TestShell", true);
+        File testDir = Utils.getDirectory("C:\\test\\TestShell\\TestDir", true);
         try {
-            AndroidProjectConverter.createAndroidStudioShellProject(dir, "Name");
+            AndroidProjectConverter.createAndroidStudioShellProject(dir, "Name", testDir);
         } catch (IOException e) {
             e.printStackTrace();
             fail(e.getMessage());
@@ -69,12 +71,48 @@ public class TestMain {
     public void testCreateAndroidStudioModule() {
         File parentDir = Utils.getDirectory("C:\\test\\TestShell", true);
         try {
-            AndroidProjectConverter.createAndroidStudioModule(parentDir, "TestModule");
+            AndroidProjectConverter.createAndroidStudioModule(parentDir, "TestModule", false);
         } catch (IOException e) {
             e.printStackTrace();
             fail(e.getMessage());
         }
 
+        final File module = commonModuleAssert(parentDir);
+        final File dir = Utils.getDirectory(module.getPath()+"/src/instrumentTest",false);
+        assertNull(dir);
+
+        try {
+            FileUtils.forceDelete(parentDir);
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail("Could not delete directory: "+parentDir.getPath());
+        }
+    }
+
+    @Test
+    public void testCreateAndroidStudioModuleWithTests() {
+        File parentDir = Utils.getDirectory("C:\\test\\TestShell", true);
+        try {
+            AndroidProjectConverter.createAndroidStudioModule(parentDir, "TestModule", true);
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+        }
+
+        final File module = commonModuleAssert(parentDir);
+        final File dir = Utils.getDirectory(module.getPath()+"/src/instrumentTest/java",false);
+        assertNotNull(dir);
+        assertTrue(dir.exists());
+
+        try {
+            FileUtils.forceDelete(parentDir);
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail("Could not delete directory: "+parentDir.getPath());
+        }
+    }
+
+    private File commonModuleAssert(final File parentDir) {
         File module = Utils.getDirectory(parentDir.getPath()+"/TestModule",false);
         assertTrue(module.exists());
 
@@ -87,12 +125,6 @@ public class TestMain {
 
         File file = new File(module.getPath()+"/build.gradle");
         assertTrue(file.exists());
-
-        try {
-            FileUtils.forceDelete(parentDir);
-        } catch (IOException e) {
-            e.printStackTrace();
-            fail("Could not delete directory: "+parentDir.getPath());
-        }
+        return module;
     }
 }
