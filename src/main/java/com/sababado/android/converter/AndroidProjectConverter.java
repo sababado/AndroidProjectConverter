@@ -42,9 +42,12 @@ public final class AndroidProjectConverter {
         if (isRequestingUpdate) {
             final ChangeLog.Update thisVersion = new ChangeLog.Update(VERSION);
             update = checkForUpdates(thisVersion);
-            if(update != null) {
-                System.out.println("There is an update available! "+update.version);
+            if (update != null) {
+                System.out.println("There is an update available! " + update.version);
                 System.out.println(update);
+            }
+            {
+                System.out.println("Up-to-date!");
             }
             if (args.length == 1) {
                 //Return because the user is only requesting an update check.
@@ -83,7 +86,7 @@ public final class AndroidProjectConverter {
         System.out.println("Converting project");
         convertProject(source, dest, name, sourceTest);
 
-        if(update != null) {
+        if (update != null) {
             System.out.println("Reminder that there is an update available.");
             System.out.println(update);
         }
