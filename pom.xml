@@ -1,8 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.sababado.android</groupId>
     <artifactId>apc</artifactId>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>1.3.0-SNAPSHOT</version>
     <name>AndroidProjectConverter</name>
     <description>This is a tool to help convert Android projects from their "old-style" project
         structure to the project structure that fits Gradle builds and Android Studio.
@@ -15,13 +17,12 @@
         </license>
     </licenses>
 
-    <dependencies> <!--
+    <dependencies>
         <dependency>
             <groupId>com.squareup.retrofit</groupId>
             <artifactId>retrofit</artifactId>
             <version>1.2.0</version>
         </dependency>
-        -->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
@@ -42,7 +43,8 @@
     <scm>
         <connection>scm:git:git://github.com/sababado/AndroidProjectConverter.git</connection>
         <url>scm:git:git://github.com/sababado/AndroidProjectConverter.git</url>
-        <developerConnection>scm:git:git://github.com/sababado/AndroidProjectConverter.git</developerConnection>
+        <developerConnection>scm:git:git://github.com/sababado/AndroidProjectConverter.git
+        </developerConnection>
     </scm>
 
     <build>

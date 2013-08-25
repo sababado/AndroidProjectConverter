@@ -12,6 +12,7 @@ import java.io.IOException;
 
 public final class AndroidProjectConverter {
 
+    private static final String VERSION = "1.3.0";
     private static final String TASK_UPDATE = "/u";
     private static final String DEPENDENCY_PLACE_HOLDER = "//TODO Put module dependencies here";
     private static final int DEFAULT_INDEX_SOURCE = 0;
@@ -93,7 +94,7 @@ public final class AndroidProjectConverter {
     public static void printHelp() {
         final StringBuilder sb = new StringBuilder();
 
-        sb.append("Android Project Converter v1.2.0");
+        sb.append("Android Project Converter v"+VERSION);
 
         sb.append("\nUsage:\tapc [/u] <source_project_path> <destination_project_path> <name> [source_test_project]\n\n");
         sb.append("[/u]\tThe program will always check for updates before running, however use this flag to only check for updates. In this case the other values aren't necessary.\n");
