@@ -5,12 +5,10 @@ import org.apache.commons.io.FileUtils;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Properties;
 
 public final class AndroidProjectConverter {
 
@@ -93,20 +91,9 @@ public final class AndroidProjectConverter {
     }
 
     public static void printHelp() {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
 
-        Properties prop = new Properties();
-        try {
-            // load a properties file
-            prop.load(new FileInputStream("help.properties"));
-            // get the property value and print it out
-            sb.append("Android Project Converter version ");
-            sb.append(prop.getProperty("version"));
-
-        } catch (IOException ex) {
-            sb = new StringBuilder();
-            sb.append("Android Project Converter");
-        }
+        sb.append("Android Project Converter v1.2.0");
 
         sb.append("\nUsage:\tapc [/u] <source_project_path> <destination_project_path> <name> [source_test_project]\n\n");
         sb.append("[/u]\tThe program will always check for updates before running, however use this flag to only check for updates. In this case the other values aren't necessary.\n");

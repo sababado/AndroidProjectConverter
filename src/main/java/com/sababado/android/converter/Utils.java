@@ -17,8 +17,8 @@ public class Utils {
      * Types of dependencies.
      */
     public enum DependencyType {
-            compile,instrumentTestCompile
-    };
+        compile, instrumentTestCompile
+    }
 
     /**
      * Helper method to copy a file from resources to an external location.
