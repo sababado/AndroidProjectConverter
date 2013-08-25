@@ -1,9 +1,10 @@
 AndroidProjectConverter v1.0.0
 =======================
 
-##Overview
 This is a command line tool to help convert Android projects from their "old-style" project structure to the project structure that fits Gradle builds and Android Studio.
 It is written in Java so it can easily be run in any environment. When executed this program will create a backup of the original project and create a new project that can be used with Gradle and Android Studio.
+
+For more information please see [this website](http://sababado.github.io/AndroidProjectConverter).
 
 ##Usage
 1. Download the jar from [here](http://sababado.github.io/AndroidProjectConverter/apc.jar).
