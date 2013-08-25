@@ -44,6 +44,7 @@ public final class AndroidProjectConverter {
             update = checkForUpdates(thisVersion);
             if(update != null) {
                 System.out.println("There is an update available! "+update.version);
+                System.out.println(update);
             }
             if (args.length == 1) {
                 //Return because the user is only requesting an update check.
