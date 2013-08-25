@@ -28,35 +28,36 @@ public class TestUtils {
             fail(e.getMessage());
         }
     }
+
     public static void initDirectories() throws IOException {
         final String testProjResourceRoot = "testFolder/Test";
-        FileUtils.forceMkdir(new File(ROOT +"/Dir Empty"));
-        FileUtils.forceMkdir(new File(ROOT +"/Dir_one_string"));
+        FileUtils.forceMkdir(new File(ROOT + "/Dir Empty"));
+        FileUtils.forceMkdir(new File(ROOT + "/Dir_one_string"));
 
-        File dir = new File(ROOT +"/DirNotEmpty");
+        File dir = new File(ROOT + "/DirNotEmpty");
         FileUtils.forceMkdir(dir);
-        Utils.copyFileFromResourcesToFile("testFolder/DirNotEmpty/help.properties", dir.getPath()+"/help.properties");
-        dir = new File(ROOT +"/DirNotEmpty/Another Dir");
+        Utils.copyFileFromResourcesToFile("testFolder/DirNotEmpty/help.properties", dir.getPath() + "/help.properties");
+        dir = new File(ROOT + "/DirNotEmpty/Another Dir");
         FileUtils.forceMkdir(dir);
-        Utils.copyFileFromResourcesToFile("testFolder/DirNotEmpty/Another Dir/some file.properties", dir.getPath()+"/some file.properties");
+        Utils.copyFileFromResourcesToFile("testFolder/DirNotEmpty/Another Dir/some file.properties", dir.getPath() + "/some file.properties");
 
-        final File testRoot = new File(ROOT +"/Test");
+        final File testRoot = new File(ROOT + "/Test");
         FileUtils.forceMkdir(testRoot);
-        FileUtils.forceMkdir(new File(testRoot.getPath()+"/assets"));
-        FileUtils.forceMkdir(new File(testRoot.getPath()+"/bin"));
-        FileUtils.forceMkdir(new File(testRoot.getPath()+"/gen"));
-        FileUtils.forceMkdir(new File(testRoot.getPath()+"/libs"));
-        FileUtils.forceMkdir(new File(testRoot.getPath()+"/res"));
+        FileUtils.forceMkdir(new File(testRoot.getPath() + "/assets"));
+        FileUtils.forceMkdir(new File(testRoot.getPath() + "/bin"));
+        FileUtils.forceMkdir(new File(testRoot.getPath() + "/gen"));
+        FileUtils.forceMkdir(new File(testRoot.getPath() + "/libs"));
+        FileUtils.forceMkdir(new File(testRoot.getPath() + "/res"));
 
-        final File mainPackageDir = new File(testRoot.getPath()+"/src/com/example/test");
+        final File mainPackageDir = new File(testRoot.getPath() + "/src/com/example/test");
         FileUtils.forceMkdir(mainPackageDir);
-        Utils.copyFileFromResourcesToFile(testProjResourceRoot+"/src/com/example/test/MainActivity.java",mainPackageDir.getPath()+"/MainActivity.java");
-        Utils.copyFileFromResourcesToFile(testProjResourceRoot+"/.classpath", testRoot.getPath()+"/.classpath");
-        Utils.copyFileFromResourcesToFile(testProjResourceRoot+"/.project", testRoot.getPath()+"/.project");
-        Utils.copyFileFromResourcesToFile(testProjResourceRoot+"/AndroidManifest.xml", testRoot.getPath()+"/AndroidManifest.xml");
-        Utils.copyFileFromResourcesToFile(testProjResourceRoot+"/ic_launcher-web.png", testRoot.getPath()+"/ic_launcher-web.png");
-        Utils.copyFileFromResourcesToFile(testProjResourceRoot+"/proguard-project.txt", testRoot.getPath()+"/proguard-project.txt");
-        Utils.copyFileFromResourcesToFile(testProjResourceRoot+"/project.properties", testRoot.getPath()+"/project.properties");
+        Utils.copyFileFromResourcesToFile(testProjResourceRoot + "/src/com/example/test/MainActivity.java", mainPackageDir.getPath() + "/MainActivity.java");
+        Utils.copyFileFromResourcesToFile(testProjResourceRoot + "/.classpath", testRoot.getPath() + "/.classpath");
+        Utils.copyFileFromResourcesToFile(testProjResourceRoot + "/.project", testRoot.getPath() + "/.project");
+        Utils.copyFileFromResourcesToFile(testProjResourceRoot + "/AndroidManifest.xml", testRoot.getPath() + "/AndroidManifest.xml");
+        Utils.copyFileFromResourcesToFile(testProjResourceRoot + "/ic_launcher-web.png", testRoot.getPath() + "/ic_launcher-web.png");
+        Utils.copyFileFromResourcesToFile(testProjResourceRoot + "/proguard-project.txt", testRoot.getPath() + "/proguard-project.txt");
+        Utils.copyFileFromResourcesToFile(testProjResourceRoot + "/project.properties", testRoot.getPath() + "/project.properties");
 
     }
 
@@ -69,6 +70,7 @@ public class TestUtils {
             e.printStackTrace();
         }
     }
+
     public static void cleanupDirectories() throws IOException {
         FileUtils.forceDelete(new File(ROOT));
     }
@@ -134,13 +136,13 @@ public class TestUtils {
 
     @Test
     public void testIDEFilter() {
-        final File dir = Utils.getDirectory("C:\\test\\Test",false);
+        final File dir = Utils.getDirectory("C:\\test\\Test", false);
         assertNotNull(dir);
 
         final File[] files = dir.listFiles(Utils.IDE_FILTER);
-        for(final File file : files) {
+        for (final File file : files) {
             final String name = file.getName();
-            System.out.println("Asserting file: "+name);
+            System.out.println("Asserting file: " + name);
             if (name.equals(".classpath") ||
                     name.equals(".project") ||
                     name.equals("local.properties") ||
