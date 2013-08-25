@@ -37,11 +37,11 @@ mvn clean verify
 This will run all tests and pull all dependencies required.
 
 ##How does this work with a project using Android Libraries?
-To reference a library in Andriod Studio, both the library and the project must be imported into Android Studio.
+To reference a library in Android Studio, both the library and the project must be imported into Android Studio.
 
 [Referencing `.aar` files isn't yet supported.](https://code.google.com/p/android/issues/detail?id=55863)
 
-##Changelog
+##Change Log
 ###v1.3.0
 Added the ability to check for updates.
 ###v1.2.0
