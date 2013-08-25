@@ -6,7 +6,7 @@ This is a command line tool to help convert Android projects from their "old-sty
 It is written in Java so it can easily be run in any environment. When executed this program will create a backup of the original project and create a new project that can be used with Gradle and Android Studio.
 
 ##Usage
-1. Download the jar from [here](http://google.com).
+1. Download the jar from [here](http://sababado.github.io/AndroidProjectConverter/apc.jar).
 2. Open a command prompt window and execute as follows:
 
 ```shell
