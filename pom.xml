@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.sababado.android</groupId>
     <artifactId>apc</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
     <name>AndroidProjectConverter</name>
     <description>This is a tool to help convert Android projects from their "old-style" project
         structure to the project structure that fits Gradle builds and Android Studio.

@@ -8,3 +8,5 @@
 target
 *.releaseBackup
 release.properties
+*.iml
+.idea

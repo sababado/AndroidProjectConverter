@@ -23,5 +23,7 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:18.0.0'
+    //Uncomment the following line to use support-v4 revision 18 (make sure to remove other support lib references)
+    //compile 'com.android.support:support-v4:18.0.0'
+    //TODO Put module dependencies here
 }

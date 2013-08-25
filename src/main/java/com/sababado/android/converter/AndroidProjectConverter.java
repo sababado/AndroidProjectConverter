@@ -2,9 +2,12 @@ package com.sababado.android.converter;
 
 import org.apache.commons.io.FileUtils;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Properties;
@@ -12,6 +15,7 @@ import java.util.Properties;
 public final class AndroidProjectConverter {
 
     private static final String TASK_UPDATE = "/u";
+    private static final String DEPENDENCY_PLACE_HOLDER = "//TODO Put module dependencies here";
     private static final int DEFAULT_INDEX_SOURCE = 0;
     private static final int DEFAULT_INDEX_DESTINATION = DEFAULT_INDEX_SOURCE + 1;
     private static final int DEFAULT_INDEX_NAME = DEFAULT_INDEX_DESTINATION + 1;
@@ -123,7 +127,7 @@ public final class AndroidProjectConverter {
         if (sourceDir == null)
             return;
         File destDir = Utils.getDirectory(dest, false);
-        if(destDir != null) {
+        if (destDir != null) {
             System.out.println("The destination project already exists, not overwriting.");
             System.out.println("Quitting.");
             return;
@@ -148,12 +152,11 @@ public final class AndroidProjectConverter {
         }
 
         //copy project files
-        if(copyProjectFiles(sourceDir, new File(destDir.getPath()+"/"+name))) {
+        if (copyProjectFiles(sourceDir, new File(destDir.getPath() + "/" + name))) {
             System.out.println("\n------------------------------");
             System.out.println("Project converted Successfully!!");
             System.out.println("------------------------------");
-        }
-        else {
+        } else {
             System.out.println("\n------------------------------");
             System.out.println("Project not completely converted. There were issues along the way.");
             System.out.println("------------------------------");
@@ -165,7 +168,7 @@ public final class AndroidProjectConverter {
      *
      * @param sourceDir         Source project
      * @param destModuleRootDir Destination module.
-     *                          @return True if all files are copied successfully, false if not.
+     * @return True if all files are copied successfully, false if not.
      */
     public static boolean copyProjectFiles(final File sourceDir, final File destModuleRootDir) {
         final File destModuleMainDir = Utils.getDirectory(destModuleRootDir.getPath() + "/src/main", true);
@@ -177,21 +180,25 @@ public final class AndroidProjectConverter {
         try {
             for (final File file : sourceFiles) {
                 final String srcName = file.getName();
-                System.out.print("Copying "+file.getPath());
-                final String destDirPath;
+                System.out.print("Copying " + file.getPath());
+                final File destDir;
                 if (srcName.equals("src")) {
                     //copy contents of src to src/main/java
-                    destDirPath = destModuleMainDir.getPath() + "/java";
-                    FileUtils.copyDirectory(file, new File(destDirPath), true);
+                    destDir = new File(destModuleMainDir.getPath() + "/java");
+                } else if (srcName.startsWith("lib")) {
+                    //modify gradle file with all libs
+                    destDir = new File(destModuleRootDir.getPath() + "\\libs");
+                    addDependenciesToGradleFile(file,destModuleRootDir);
                 } else {
-                    destDirPath = destModuleMainDir.getPath()+"\\"+srcName;
-                    if (file.isDirectory()) {
-                        FileUtils.copyDirectory(file, new File(destDirPath),true);
-                    } else {
-                        FileUtils.copyFile(file, new File(destDirPath), true);
-                    }
+                    //any other file
+                    destDir = new File(destModuleMainDir.getPath() + "\\" + srcName);
                 }
-                System.out.println(" to "+destDirPath);
+                if (file.isDirectory()) {
+                    FileUtils.copyDirectory(file, destDir, true);
+                } else {
+                    FileUtils.copyFile(file, destDir, true);
+                }
+                System.out.println(" to " + destDir.getPath());
             }
         } catch (IOException e) {
             System.out.println("\nERROR!! Could not copy file/directory.");
@@ -200,6 +207,85 @@ public final class AndroidProjectConverter {
         }
 
         System.out.println("All files copied.");
+        return true;
+    }
+
+    /**
+     * Add all libs from the directory to the module build.gradle file.
+     *
+     * @param libDir        Libs directory
+     * @param moduleRootDir Root directory of the module
+     * @return true if the operation was successful, false if not.
+     */
+    public static boolean addDependenciesToGradleFile(final File libDir, final File moduleRootDir) {
+        assert (libDir != null && libDir.isDirectory());
+        assert (moduleRootDir != null && moduleRootDir.isDirectory());
+        System.out.print(" (Adding dependencies to gradle file) ");
+
+        final String prefix = "\tcompile files('" + libDir.getName() + "/";
+
+        StringBuilder sb = new StringBuilder();
+
+        //build string
+        final File[] files = libDir.listFiles();
+        if(files == null)
+            return true;
+
+        for (final File file : files) {
+            final String fileName = file.getName();
+            if (!file.isDirectory() && fileName.endsWith(".jar")) {
+                sb.append(prefix + fileName + "')\n");
+            }
+        }
+
+        final File buildGradle = new File(moduleRootDir.getPath() + "/build.gradle");
+        final File buildGradleWithDependencies = new File(moduleRootDir.getPath() + "/build-dep.gradle");
+        BufferedReader br = null;
+        BufferedWriter bw = null;
+//        System.out.println("\n------\nReading gradle file");
+        try {
+            String line;
+            br = new BufferedReader(new FileReader(buildGradle));
+            bw = new BufferedWriter(new FileWriter(buildGradleWithDependencies));
+            while((line = br.readLine()) != null) {
+//                System.out.println(line);
+                bw.write(line);
+                bw.newLine();
+                if(line.trim().equals(DEPENDENCY_PLACE_HOLDER)) {
+//                    System.out.println(sb.toString());
+                    bw.write(sb.toString());
+                }
+            }
+            bw.flush();
+//            System.out.println("Done reading gradle file\n------");
+        } catch (FileNotFoundException e) {
+            System.out.println("Warning!! Cannot add dependencies to module gradle file, the gradle file does not exist.");
+            return false;
+        } catch(IOException e) {
+            System.out.println("Warning!! Cannot add dependencies to module gradle file, there were problems reading/writing to the file.");
+            return false;
+        } finally {
+            try {
+                if (br != null)br.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            try {
+                bw.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        //move new build file to old build file.
+        try {
+            FileUtils.forceDelete(buildGradle);
+            FileUtils.moveFile(buildGradleWithDependencies,buildGradle);
+        }
+        catch(IOException e) {
+            System.out.println("Could not save the gradle file with dependencies.");
+            return false;
+        }
         return true;
     }
 

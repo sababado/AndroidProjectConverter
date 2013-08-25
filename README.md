@@ -32,6 +32,8 @@ To reference a library in Andriod Studio, both the library and the project must 
 I'll make modifications to this so that anything in libs will automatically be referenced however this won't
 do anything for library projects.
 
+[Referencing `.aar` files isn't yet supported.](https://code.google.com/p/android/issues/detail?id=55863)
+
 ##Roadmap
 1. Implement a feature to check for updates to the `apc.jar` file.
 2. Provide another option to specify an Android Test Project and move the contents appropriately to the gradle project.
