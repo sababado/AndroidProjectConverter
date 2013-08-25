@@ -42,3 +42,4 @@ Initial Release
 1. Implement a feature to check for updates to the `apc.jar` file.
 2. Provide another option to specify an Android Test Project and move the contents appropriately to the gradle project.
 3. Work with library projects.
+4. Provide an option to use dependencies from maven central instead of local libs if available.
