@@ -42,6 +42,8 @@ To reference a library in Andriod Studio, both the library and the project must 
 [Referencing `.aar` files isn't yet supported.](https://code.google.com/p/android/issues/detail?id=55863)
 
 ##Changelog
+###v1.2.0
+Added the ability to copy an Android Test Project simultaneously with an Android Project.
 ###v1.1.0
 Added support to modify Module build.gradle file with all dependencies in a lib(s) directory.
 ###v1.0.0
