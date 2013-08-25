@@ -29,7 +29,7 @@
       <div class="inner clearfix">
         <section id="main-content">
           <h1>
-<a name="androidprojectconverter-v100" class="anchor" href="#androidprojectconverter-v100"><span class="octicon octicon-link"></span></a>AndroidProjectConverter v1.0.0</h1>
+<a name="androidprojectconverter-v100" class="anchor" href="#androidprojectconverter-v100"><span class="octicon octicon-link"></span></a>AndroidProjectConverter v1.1.0</h1>
 
 <h2>
 <a name="overview" class="anchor" href="#overview"><span class="octicon octicon-link"></span></a>Overview</h2>
@@ -63,11 +63,21 @@ Once the source is downloaded, execute the following from the root directoy:</p>
 <p>This will run all tests and pull all dependencies required.</p>
 
 <h2>
+<a name="android-libraries" class="anchor" href="#android-libraries"><span class="octicon octicon-link"></span></a>How does this work with a project using Android Libraries?</h2>
+<p>To reference a library in Andriod Studio, both the library and the project must be imported into Android Studio. <a href="https://code.google.com/p/android/issues/detail?id=55863">Referencing `.aar` files isn't yet supported.</a></p>
+
+<h2>
+<a name="changelog" class="anchor" href="#changelog"><span class="octicon octicon-link"></span></a>Changelog</h2>
+<h3>v1.1.0</h3><p>Added support to modify Module build.gradle file with all dependencies in a lib(s) directory.</p>
+<h3>v1.0.0</h3><p>Initial Release</p>
+
+<h2>
 <a name="roadmap" class="anchor" href="#roadmap"><span class="octicon octicon-link"></span></a>Roadmap</h2>
 
 <ol>
 <li>Implement a feature to check for updates to the <code>apc.jar</code> file.</li>
 <li>Provide another option to specify an Android Test Project and move the contents appropriately to the gradle project.</li>
+<li>Work with Android Library Projects.</li>
 </ol>
         </section>
 
