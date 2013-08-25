@@ -1,4 +1,4 @@
-AndroidProjectConverter v1.0.0
+AndroidProjectConverter v1.1.0
 =======================
 
 This is a command line tool to help convert Android projects from their "old-style" project structure to the project structure that fits Gradle builds and Android Studio.
@@ -33,6 +33,12 @@ I'll make modifications to this so that anything in libs will automatically be r
 do anything for library projects.
 
 [Referencing `.aar` files isn't yet supported.](https://code.google.com/p/android/issues/detail?id=55863)
+
+##Changelog
+###v1.1.0
+Added support to modify Module build.gradle file with all dependencies in a lib(s) directory.
+###v1.0.0
+Initial Release
 
 ##Roadmap
 1. Implement a feature to check for updates to the `apc.jar` file.
