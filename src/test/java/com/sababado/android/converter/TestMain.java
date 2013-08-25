@@ -1,6 +1,9 @@
 package com.sababado.android.converter;
 
 
+import com.sababado.android.converter.models.ChangeLog;
+import com.sababado.android.converter.network.ChangeLogService;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -8,6 +11,8 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+
+import retrofit.RestAdapter;
 
 import static junit.framework.Assert.assertNull;
 import static junit.framework.TestCase.assertNotNull;

@@ -1,5 +1,8 @@
 package com.sababado.android.converter;
 
+import com.sababado.android.converter.models.ChangeLog;
+import com.sababado.android.converter.network.ChangeLogService;
+
 import org.apache.commons.io.FileUtils;
 
 import java.io.BufferedReader;
@@ -9,6 +12,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+
+import retrofit.RestAdapter;
+import retrofit.RetrofitError;
 
 public final class AndroidProjectConverter {
 
@@ -32,12 +38,19 @@ public final class AndroidProjectConverter {
          */
         final boolean hasUpdateTask = args[0].equals(TASK_UPDATE);
         final boolean isRequestingUpdate = hasUpdateTask || args.length > 1;
+        final ChangeLog.Update update;
         if (isRequestingUpdate) {
-            checkForUpdates();
+            final ChangeLog.Update thisVersion = new ChangeLog.Update(VERSION);
+            update = checkForUpdates(thisVersion);
+            if(update != null) {
+                System.out.println("There is an update available! "+update.version);
+            }
             if (args.length == 1) {
                 //Return because the user is only requesting an update check.
                 return;
             }
+        } else {
+            update = null;
         }
 
         System.out.println("Getting arg values");
@@ -68,6 +81,11 @@ public final class AndroidProjectConverter {
         }
         System.out.println("Converting project");
         convertProject(source, dest, name, sourceTest);
+
+        if(update != null) {
+            System.out.println("Reminder that there is an update available.");
+            System.out.println(update);
+        }
     }
 
     /**
@@ -75,26 +93,24 @@ public final class AndroidProjectConverter {
      *
      * @return Returns true if there is an update, false if no update.
      */
-    public static boolean checkForUpdates() {
-        System.out.println("Checking for updates... This feature is to be implemented in a later version.");
-        /*
-         * TODO Check internet connection. If there is no connection then return
-		 * false.
-		 * 
-		 * If there is a connection then check if there is an update. Return
-		 * true or false if there is an update. If there is an update then
-		 * prompt the user to download the update now or later If the answer is
-		 * now then start a new jar to download the program and exit this. When
-		 * it is downloaded then start this from that. If the answer is later
-		 * then skip and continue.
-		 */
-        return false;
+    public static ChangeLog.Update checkForUpdates(final ChangeLog.Update thisVersion) {
+        System.out.println("Checking for updates...");
+        try {
+            RestAdapter restAdapter = new RestAdapter.Builder().setServer("http://sababado.github.io/AndroidProjectConverter").build();
+            ChangeLogService changeLogService = restAdapter.create(ChangeLogService.class);
+            ChangeLog changeLog = changeLogService.getChangeLog();
+            changeLog.sort();
+            return changeLog.containsMoreRecentUpdate(thisVersion);
+        } catch (RetrofitError e) {
+            System.out.println("Error!! Could not check for updates at this time.");
+            return null;
+        }
     }
 
     public static void printHelp() {
         final StringBuilder sb = new StringBuilder();
 
-        sb.append("Android Project Converter v"+VERSION);
+        sb.append("Android Project Converter v" + VERSION);
 
         sb.append("\nUsage:\tapc [/u] <source_project_path> <destination_project_path> <name> [source_test_project]\n\n");
         sb.append("[/u]\tThe program will always check for updates before running, however use this flag to only check for updates. In this case the other values aren't necessary.\n");
@@ -175,7 +191,7 @@ public final class AndroidProjectConverter {
      *
      * @param sourceDir         Source project
      * @param destModuleRootDir Destination module.
-     * @param sourceTestDir Directory of the Test project.
+     * @param sourceTestDir     Directory of the Test project.
      * @return True if all files are copied successfully, false if not.
      */
     public static boolean copyProjectFiles(final File sourceDir, final File destModuleRootDir, final File sourceTestDir) {
@@ -198,23 +214,22 @@ public final class AndroidProjectConverter {
                     //modify gradle file with all libs
                     destDir = new File(destModuleRootDir.getPath() + "\\libs");
                     addDependenciesToGradleFile(file, destModuleRootDir, Utils.DependencyType.compile);
-                } else if(sourceTestDir != null && srcName.equals(sourceTestDir.getName())) {
+                } else if (sourceTestDir != null && srcName.equals(sourceTestDir.getName())) {
                     copyTestProjectFiles(destModuleRootDir, sourceTestDir);
                     hasCopiedTestProject = true;
                     destDir = null;
-                }
-                else {
+                } else {
                     //any other file
                     destDir = new File(destModuleMainDir.getPath() + "\\" + srcName);
                 }
-                if(destDir != null) {
+                if (destDir != null) {
                     if (file.isDirectory()) {
                         FileUtils.copyDirectory(file, destDir, true);
                     } else {
                         FileUtils.copyFile(file, destDir, true);
                     }
                 }
-                if(destDir != null)
+                if (destDir != null)
                     System.out.println(" to " + destDir.getPath());
                 else {
                     System.out.println();
@@ -222,7 +237,7 @@ public final class AndroidProjectConverter {
             }
 
             //copy test project if it hasn't been copied.
-            if(!hasCopiedTestProject && sourceTestDir != null) {
+            if (!hasCopiedTestProject && sourceTestDir != null) {
                 copyTestProjectFiles(destModuleRootDir, sourceTestDir);
                 hasCopiedTestProject = true;
             }
@@ -238,28 +253,29 @@ public final class AndroidProjectConverter {
 
     /**
      * Copy the files from a test project into it's destination module
+     *
      * @param destModuleRootDir Destination module.
-     * @param sourceTestDir Source Test directory.
+     * @param sourceTestDir     Source Test directory.
      * @return true if the operation is successful, false if not.
      */
     public static boolean copyTestProjectFiles(final File destModuleRootDir, final File sourceTestDir) throws IOException {
         System.out.print(" (Copying Test Project) ");
         //libs
-        File file = Utils.getDirectory(sourceTestDir.getPath()+"/libs", false);
-        if(file != null && file.isDirectory()) {
+        File file = Utils.getDirectory(sourceTestDir.getPath() + "/libs", false);
+        if (file != null && file.isDirectory()) {
             FileUtils.copyDirectory(file, new File(destModuleRootDir.getPath() + "\\libs"), true);
             addDependenciesToGradleFile(file, destModuleRootDir, Utils.DependencyType.instrumentTestCompile);
         }
 
         //res
-        file = Utils.getDirectory(sourceTestDir.getPath()+"/res", false);
-        if(file != null && file.isDirectory()) {
+        file = Utils.getDirectory(sourceTestDir.getPath() + "/res", false);
+        if (file != null && file.isDirectory()) {
             FileUtils.copyDirectory(file, new File(destModuleRootDir.getPath() + "\\src\\instrumentTest\\res"), true);
         }
 
         //src
-        file = Utils.getDirectory(sourceTestDir.getPath()+"/src", false);
-        if(file != null && file.isDirectory()) {
+        file = Utils.getDirectory(sourceTestDir.getPath() + "/src", false);
+        if (file != null && file.isDirectory()) {
             FileUtils.copyDirectory(file, new File(destModuleRootDir.getPath() + "\\src\\instrumentTest\\java"), true);
         }
         return true;
