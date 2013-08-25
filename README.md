@@ -29,8 +29,6 @@ This will run all tests and pull all dependencies required.
 
 ##How does this work with a project using Android Libraries?
 To reference a library in Andriod Studio, both the library and the project must be imported into Android Studio.
-I'll make modifications to this so that anything in libs will automatically be referenced however this won't
-do anything for library projects.
 
 [Referencing `.aar` files isn't yet supported.](https://code.google.com/p/android/issues/detail?id=55863)
 
@@ -43,5 +41,4 @@ Initial Release
 ##Roadmap
 1. Implement a feature to check for updates to the `apc.jar` file.
 2. Provide another option to specify an Android Test Project and move the contents appropriately to the gradle project.
-3. Correctly build out build.gradle for the module. This should include all file dependencies that are in a libs directory
-4. Work with library projects.
+3. Work with library projects.
