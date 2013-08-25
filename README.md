@@ -1,4 +1,4 @@
-AndroidProjectConverter v1.1.0
+AndroidProjectConverter v1.2.0
 =======================
 
 This is a command line tool to help convert Android projects from their "old-style" project structure to the project structure that fits Gradle builds and Android Studio.
@@ -19,9 +19,18 @@ For example: The following command would convert a project called MyCoolApp.
 java -jar apc.jar "C:/android/MyCoolApp" "C:/android/MyCoolAppProject" MyCoolApp
 ```
 
+All jars that are in the project's `libs` directory will automatically be copied and added to the module's `build.gradle` file as `compile` dependencies.
+
+##Usage With Test Projects
+This program can convert not only an Android project but also an Android Test Project simultaneously. A path to the test project needs to be specified as an extra argument. For example:
+```shell
+java -jar apc.jar "C:/android/MyCoolApp" "C:/android/MyCoolAppProject" MyCoolApp "C:/android/MyCoolAppTest"
+```
+All jars that are in the test project's `libs` directory will automatically be copied and added to the module's `build.gradle` file as `instrumentTestCompile` dependencies.
+
 ##Contributing
 This is a maven project, built with Maven 2.2.1
-Once the source is downloaded, execute the following from the root directoy:
+Once the source is downloaded, execute the following from the root directory:
 ```shell
 mvn clean verify
 ```
@@ -40,6 +49,5 @@ Initial Release
 
 ##Roadmap
 1. Implement a feature to check for updates to the `apc.jar` file.
-2. Provide another option to specify an Android Test Project and move the contents appropriately to the gradle project.
-3. Work with library projects.
-4. Provide an option to use dependencies from maven central instead of local libs if available.
+2. Work with library projects.
+3. Provide an option to use dependencies from maven central instead of local libs if available.
