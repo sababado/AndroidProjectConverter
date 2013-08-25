@@ -1,7 +1,5 @@
-AndroidProjectConverter
+AndroidProjectConverter v1.0.0
 =======================
-v1.0.0
-----------
 
 ##Overview
 This is a command line tool to help convert Android projects from their "old-style" project structure to the project structure that fits Gradle builds and Android Studio.
@@ -9,7 +7,8 @@ It is written in Java so it can easily be run in any environment. When executed 
 
 ##Usage
 1. Download the jar from [here](http://google.com).
-2. Open a command prompt window and execute as follows
+2. Open a command prompt window and execute as follows:
+
 ```shell
 java -jar apc.jar "C:/Path/to/original/project" "C:/Path/to/converted/project" "Name"
 ```
@@ -21,7 +20,6 @@ java -jar apc.jar "C:/android/MyCoolApp" "C:/android/MyCoolAppProject" MyCoolApp
 
 ##Contributing
 This is a maven project, built with Maven 2.2.1
-
 Once the source is downloaded, execute the following from the root directoy:
 ```shell
 mvn clean verify
