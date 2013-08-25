@@ -3,3 +3,8 @@
 # Package Files #
 *.war
 *.ear
+
+# Build files
+target
+*.releaseBackup
+release.properties
