@@ -41,6 +41,16 @@ To reference a library in Android Studio, both the library and the project must 
 
 [Referencing `.aar` files isn't yet supported.](https://code.google.com/p/android/issues/detail?id=55863)
 
+The alternative is to have your .aar file in a maven repository, then reference the library in your build script.
+A nexus repository is a nice option.
+Google Play Services is a special case, if you download the Google Repository from the SDK Manager then that's all you'll
+need for that library.
+For example, you can reference the latest Google Play Services library with this line in the dependencies section of your
+gradle script:
+```Gradle
+compile 'com.google.android.gms:play-services:3.2.+'
+```
+
 ##Change Log
 ###v1.3.0
 Added the ability to check for updates.
