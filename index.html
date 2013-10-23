@@ -31,8 +31,7 @@
           <h1>
 <a name="androidprojectconverter-v100" class="anchor" href="#androidprojectconverter-v100"><span class="octicon octicon-link"></span></a>AndroidProjectConverter v1.2.0</h1>
 
-<h2>
-<a name="overview" class="anchor" href="#overview"><span class="octicon octicon-link"></span></a>Overview</h2>
+<h2><a name="overview" class="anchor" href="#overview"><span class="octicon octicon-link"></span></a>Overview</h2>
 
 <p>This is a command line tool to help convert Android projects from their "old-style" project structure to the project structure that fits Gradle builds and Android Studio.
 It is written in Java so it can easily be run in any environment. When executed this program will create a backup of the original project and create a new project that can be used with Gradle and Android Studio.</p>
@@ -61,11 +60,47 @@ It is written in Java so it can easily be run in any environment. When executed 
 </code></pre>
 <p>All jars that are in the test project's `libs` directory will automatically be copied and added to the module's `build.gradle` file as `instrumentTestCompile` dependencies.</p>
 
+<h2><a name="how-it-works" class="anchor" href="#how-it-works"><span class="octicon octicon-link"></span></a>How It Works</h2>
+<p>
+First it is worth noting that a Gradle project is structured like a maven project; a project may contain modules.
+Android Studio defaults to creating a project with one module (which is the Android app). This utility follows that structure.
+The parent project and each of its modules have a build.gradle file. This specifies how the project and modules are built.
+</p>
+<p>
+The Gradle Wrapper is a very important piece that should be attached to any gradle project. The wrapper is all inclusive and
+allows for gradle execution anywhere without having to install anything for gradle. USE IT! It can passed around with the project
+through source control and it makes all of our lives just a bit easier.
+</p>
+<p>
+What this tool does (high level):
+<ul>
+<li>This tool will first copy the project that should be converted as a backup.</li>
+<li>Creates a gradle project shell. The shell includes a project and a module. This step copies all of the default files (gradlew and build.gradle files) to the right places in the shell.</li>
+<li>The project is copied
+	<ul>
+		<li>The contents of the src directory are copied to &lt;module&gt;/src/main/java</li>
+		<li>The contents of the libs directory are copied to &lt;module&gt;/libs and all of the dependencies are added to the module's build.gradle file.</li>
+		<li>Any other files or folders (exclusive of build or auto-generated files and folders) are copied from the root of the source project to src/main/ in the gradle project.</li>
+	</ul>
+</li>
+<li>The test project is copied (if specified)
+	<ul>
+		<li>The contents of the src directory are copied to &lt;module&gt;/src/instrumentTest/java</li>
+		<li>The contents of the libs directory are copied to &lt;module&gt;/libs and all of the dependencies are added to the module's build.gradle file <i>as test project dependencies.</i></li>
+		<li>The contents of the res directory are copied to &lt;module&gt;/instrumentTest/res/</li>
+	</ul>
+</li>
+</ul>
+</p>
+<p>
+If your project uses any libraries <a href="#android-libraries">see below</a> for suggestions on how to use them.
+</p>
+
 <h2>
 <a name="contributing" class="anchor" href="#contributing"><span class="octicon octicon-link"></span></a>Contributing</h2>
 
 <p>This is a maven project, built with Maven 2.2.1
-Once the source is downloaded, execute the following from the root directoy:</p>
+Once the source is downloaded, execute the following from the root directory:</p>
 
 <pre lang="shell"><code>mvn clean verify
 </code></pre>
@@ -74,7 +109,8 @@ Once the source is downloaded, execute the following from the root directoy:</p>
 
 <h2>
 <a name="android-libraries" class="anchor" href="#android-libraries"><span class="octicon octicon-link"></span></a>How does this work with a project using Android Libraries?</h2>
-<p>To reference a library in Andriod Studio, both the library and the project must be imported into Android Studio. <a href="https://code.google.com/p/android/issues/detail?id=55863">Referencing `.aar` files isn't yet supported.</a></p>
+<p>To reference a library in Andriod Studio, both the library and the project must be imported into Android Studio. <a href="https://code.google.com/p/android/issues/detail?id=55863">Referencing `.aar` files isn't yet supported.</a>
+The alternative is to get the .aar file from a maven repository. Many popular libraries are already hosted on maven central, however they can easily be uploaded to a local maven repository. I suggest <a href="http://www.sonatype.org/nexus/">Sonatype Nexus</a>.</p>
 
 <h2>
 <a name="changelog" class="anchor" href="#changelog"><span class="octicon octicon-link"></span></a>Change Log</h2>
